@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/viveksahu26/orphaned_resource/pkg/client"
 	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
