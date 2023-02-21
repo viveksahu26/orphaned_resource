@@ -9,9 +9,9 @@ image:
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
   tag: "latest"
-  volumeMounts:
-    - mountPath: "/mnt/obmondo-k8s-agent"
-      name: k8s-agent-tls
+  # volumeMounts:
+  #   - mountPath: "/mnt/obmondo-k8s-agent"
+  #     name: k8s-agent-tls
 
 imagePullSecrets:
     - name: accesstoken-4obmondoagentregistry-customer-enableit
@@ -21,10 +21,10 @@ envVars: {}
 nameOverride: ""
 fullnameOverride: ""
 
-volumes:
-  - name: k8s-agent-tls
-    secret:
-      secretName: k8s-agent-tls
+# volumes:
+#   - name: k8s-agent-tls
+#     secret:
+#       secretName: k8s-agent-tls
 
 serviceAccount:
   # Specifies whether a service account should be created

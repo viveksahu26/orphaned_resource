@@ -62,7 +62,7 @@ spec:
             httpGet:
               path: /readyz
               port: 8080
-            periodSeconds: 300
+            periodSeconds: 600
             initialDelaySeconds: 1
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
