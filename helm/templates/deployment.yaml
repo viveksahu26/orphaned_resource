@@ -49,10 +49,10 @@ spec:
               value: {{ .Values.envVars.prometheusURL | default "http://localhost:9090" }}
             # - name: API_URL
             #   value: {{ .Values.envVars.apiURL | default "https://api.obmondo.com/api/clusters/node-count/" }}
-          {{- with .Values.image.volumeMounts}}
-          volumeMounts:
-            {{- toYaml . | nindent 12}}
-          {{- end }}
+          # {{- with .Values.image.volumeMounts}}
+          # volumeMounts:
+          #   {{- toYaml . | nindent 12}}
+          # {{- end }}
           livenessProbe:
             exec:
               command:
@@ -66,10 +66,10 @@ spec:
             initialDelaySeconds: 1
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-      {{- with .Values.volumes }}
-      volumes:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
+      # {{- with .Values.volumes }}
+      # volumes:
+      #   {{- toYaml . | nindent 8 }}
+      # {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
