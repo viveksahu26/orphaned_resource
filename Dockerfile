@@ -16,6 +16,6 @@ RUN apt-get update && apt install -y ca-certificates
 
 WORKDIR /app
 
-COPY --from=buildStage /app/obmondo-k8s-agent /app/
+COPY --from=buildStage /app/* /app/
 
 CMD [ "/app/obmondo-k8s-agent" ]
