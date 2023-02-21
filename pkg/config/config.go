@@ -19,8 +19,8 @@ import (
 // default values for config
 var (
 	defaultOrphanedResourceDuration = 5 * time.Minute
-	defCertPath                     = "tls.crt"
-	defKeyPath                      = "tls.key"
+	defCertPath                     = "../../tls.crt"
+	defKeyPath                      = "../../tls.key"
 )
 
 // External config values
