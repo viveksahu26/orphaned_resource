@@ -18,28 +18,28 @@ import (
 
 // default values for config
 var (
-	defaultOrphanedResourceDuration = time.Minute
-	defCertPath                     = "/opt/obmondo-k8s-agent/tls.crt"
-	defKeyPath                      = "/opt/obmondo-k8s-agent/tls.key"
+	defaultOrphanedResourceDuration = 5 * time.Minute
+	defCertPath                     = "tls.crt"
+	defKeyPath                      = "tls.key"
 )
 
 // External config values
 var (
 	OrphanedResourceDuration time.Duration
 	PrometheusURL            string
-	ObmondoURL               string
-	ObmondoHTTPClient        *http.Client
-	CertName                 string
-	Clientset                *kubernetes.Clientset
-	DynamicClient            *dynamic.DynamicClient
-	DiscoveryClient          *discovery.DiscoveryClient
+	// ObmondoURL               string
+	ObmondoHTTPClient *http.Client
+	CertName          string
+	Clientset         *kubernetes.Clientset
+	DynamicClient     *dynamic.DynamicClient
+	DiscoveryClient   *discovery.DiscoveryClient
 )
 
 // LoadConfig populates the config vars from env
 func LoadConfig() {
 	OrphanedResourceDuration = getOrphanedResourceDuration()
 	PrometheusURL = getPrometheusURL()
-	ObmondoURL = getObmondoURL()
+	// ObmondoURL = getObmondoURL()
 	cert := getCertificate()
 	ObmondoHTTPClient = getCustomHTTPSClient(cert)
 	CertName = getCommonNameForCert(cert)
@@ -69,13 +69,13 @@ func getPrometheusURL() string {
 }
 
 // getObmondoURL() loads the URL from env
-func getObmondoURL() string {
-	apiURL := os.Getenv("API_URL")
-	if len(apiURL) == 0 {
-		log.Fatal("unable to get Obmondo API URL from env")
-	}
-	return apiURL
-}
+// func getObmondoURL() string {
+// 	apiURL := os.Getenv("API_URL")
+// 	if len(apiURL) == 0 {
+// 		log.Fatal("unable to get Obmondo API URL from env")
+// 	}
+// 	return apiURL
+// }
 
 // getCertificate() loads the certificates from env
 func getCertificate() tls.Certificate {
