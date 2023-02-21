@@ -37,7 +37,9 @@ spec:
               containerPort: 8080
               protocol: TCP
           env:
-            - name: DURATION
+            # - name: DURATION
+            #   value: {{ .Values.envVars.Duration | default "5m0s" }}
+            - name: ORPHANED_RES_DURATION
               value: {{ .Values.envVars.Duration | default "5m0s" }}
             - name: AGENT_CERT_PATH
               value: {{ .Values.envVars.certPath | default "tls.crt" }}
@@ -45,8 +47,8 @@ spec:
               value: {{ .Values.envVars.keyPath | default "tls.key" }}
             - name: PROMETHEUS_URL
               value: {{ .Values.envVars.prometheusURL | default "http://localhost:9090" }}
-            - name: API_URL
-              value: {{ .Values.envVars.apiURL | default "https://api.obmondo.com/api/clusters/node-count/" }}
+            # - name: API_URL
+            #   value: {{ .Values.envVars.apiURL | default "https://api.obmondo.com/api/clusters/node-count/" }}
           {{- with .Values.image.volumeMounts}}
           volumeMounts:
             {{- toYaml . | nindent 12}}
