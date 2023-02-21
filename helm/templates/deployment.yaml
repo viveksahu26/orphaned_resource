@@ -47,8 +47,8 @@ spec:
               value: {{ .Values.envVars.keyPath | default "tls.key" }}
             - name: PROMETHEUS_URL
               value: {{ .Values.envVars.prometheusURL | default "http://localhost:9090" }}
-            # - name: API_URL
-            #   value: {{ .Values.envVars.apiURL | default "https://api.obmondo.com/api/clusters/node-count/" }}
+            - name: API_URL
+              value: {{ .Values.envVars.apiURL | default "https://api.obmondo.com/" }}
           # {{- with .Values.image.volumeMounts}}
           # volumeMounts:
           #   {{- toYaml . | nindent 12}}
