@@ -35,26 +35,33 @@ var OrphanedResources = prometheus.NewGauge(
 	},
 )
 
+// SendOrphanedResourceMetricsAlertInfo func for monitor orphan resources
 func SendOrphanedResourceMetricsAlertInfo() error {
+	fmt.Println("+++++ Inside SendOrphanedResourceMetricsAlertInfo")
+	defer fmt.Println("------ Exit SendOrphanedResourceMetricsAlertInfo")
 	orphangeResourceLabels := CountOrphanedResources(config.DiscoveryClient, config.DynamicClient)
-
+	fmt.Println("**************** TOTAL TOTAL orphangeResourceLabels.totalCount: ", orphangeResourceLabels.totalCount)
 	OrphanedResources.Set(float64(orphangeResourceLabels.totalCount))
 	return nil
 }
 
 func CountOrphanedResources(discoveryClient *discovery.DiscoveryClient, dynamicClient *dynamic.DynamicClient) CountOrphanedResource {
+	fmt.Println("+++++ Inside CountOrphanedResources")
+	defer fmt.Println("------ Exit CountOrphanedResources")
 	count := CountOrphanedResource{}
 
 	countArgoCDResource := count
 	countOrphanedResource := count
 	countArgoCDResource, countOrphanedResource = GetOrphanedResource(discoveryClient, dynamicClient, countArgoCDResource, countOrphanedResource)
 
-	log.Println("Total ArgoCD Managed Resource: ", countArgoCDResource)
-	log.Println("Total Orphaned Resource: ", countOrphanedResource)
+	log.Println("Total ArgoCD Managed Resource: ", countArgoCDResource.totalCount)
+	log.Println("Total Orphaned Resource: ", countOrphanedResource.totalCount)
 	return countOrphanedResource
 }
 
 func GetOrphanedResource(discoveryClient *discovery.DiscoveryClient, dynamicClient *dynamic.DynamicClient, totalArgoManagedResource, totalOrphanedResource CountOrphanedResource) (CountOrphanedResource, CountOrphanedResource) {
+	fmt.Println("+++++ Inside GetOrphanedResource")
+	defer fmt.Println("------ Exit GetOrphanedResource")
 	// fetches all resources from API Server
 	resources, err := discoveryClient.ServerPreferredResources()
 	if err != nil {
@@ -101,13 +108,14 @@ func GetOrphanedResource(discoveryClient *discovery.DiscoveryClient, dynamicClie
 				Resource: resInfo.Name,
 			}
 
-			getAllResource, err := dynamicClient.Resource(gvk).Namespace("").List(context.TODO(), metav1.ListOptions{})
+			getAllResource, err := dynamicClient.Resource(gvk).Namespace("argocd").List(context.TODO(), metav1.ListOptions{})
 			if err != nil {
 				fmt.Printf("Could not retrieve resources from namespace 'default': %v", err)
 				continue
 			}
 
 			for _, el := range getAllResource.Items {
+				fmt.Println("////////////////")
 				totalNumberOfResources++
 
 				// get labels for each resource
