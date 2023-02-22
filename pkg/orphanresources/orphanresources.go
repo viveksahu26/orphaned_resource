@@ -3,7 +3,6 @@ package orphanresources
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"log"
 	"os"
 	"strings"
@@ -39,17 +38,17 @@ var OrphanedResources = prometheus.NewGauge(
 
 // SendOrphanedResourceMetricsAlertInfo func for monitor orphan resources
 func SendOrphanedResourceMetricsAlertInfo() error {
-	fmt.Println("+++++ Inside SendOrphanedResourceMetricsAlertInfo")
-	defer fmt.Println("------ Exit SendOrphanedResourceMetricsAlertInfo")
+	log.Println("+++++ Inside SendOrphanedResourceMetricsAlertInfo")
+	defer log.Println("------ Exit SendOrphanedResourceMetricsAlertInfo")
 	orphangeResourceLabels := CountOrphanedResources(config.KubeConfig)
-	fmt.Println("**************** TOTAL TOTAL orphangeResourceLabels.totalCount: ", orphangeResourceLabels.totalCount)
+	log.Println("**************** TOTAL TOTAL orphangeResourceLabels.totalCount: ", orphangeResourceLabels.totalCount)
 	OrphanedResources.Set(float64(orphangeResourceLabels.totalCount))
 	return nil
 }
 
 func CountOrphanedResources(kubeconfig *rest.Config) CountOrphanedResource {
-	fmt.Println("+++++ Inside CountOrphanedResources")
-	defer fmt.Println("------ Exit CountOrphanedResources")
+	log.Println("+++++ Inside CountOrphanedResources")
+	defer log.Println("------ Exit CountOrphanedResources")
 	count := CountOrphanedResource{}
 
 	countArgoCDResource := count
@@ -62,8 +61,8 @@ func CountOrphanedResources(kubeconfig *rest.Config) CountOrphanedResource {
 }
 
 func GetOrphanedResource(config *rest.Config, totalArgoManagedResource, totalOrphanedResource CountOrphanedResource) (CountOrphanedResource, CountOrphanedResource) {
-	fmt.Println("+++++ Inside GetOrphanedResource")
-	defer fmt.Println("------ Exit GetOrphanedResource")
+	log.Println("+++++ Inside GetOrphanedResource")
+	defer log.Println("------ Exit GetOrphanedResource")
 
 	// creates new kubernetes client
 	clientset, err := kubernetes.NewForConfig(config)
@@ -113,7 +112,7 @@ func GetOrphanedResource(config *rest.Config, totalArgoManagedResource, totalOrp
 
 			_, err := json.Marshal(&resInfo)
 			if err != nil {
-				fmt.Printf("Could not convert resource %s to JSON format: %v", resInfo.Name, err)
+				log.Printf("Could not convert resource %s to JSON format: %v", resInfo.Name, err)
 				continue
 			}
 
@@ -123,14 +122,14 @@ func GetOrphanedResource(config *rest.Config, totalArgoManagedResource, totalOrp
 				Resource: resInfo.Name,
 			}
 
-			getAllResource, err := dynamicClient.Resource(gvk).Namespace("argocd").List(context.TODO(), metav1.ListOptions{})
+			getAllResource, err := dynamicClient.Resource(gvk).Namespace("").List(context.TODO(), metav1.ListOptions{})
 			if err != nil {
-				fmt.Printf("Could not retrieve resources from namespace 'default': %v", err)
+				log.Printf("Could not retrieve resources from namespace: %v", err)
 				continue
 			}
 
 			for _, el := range getAllResource.Items {
-				fmt.Println("////////////////")
+				log.Println("////////////////")
 				totalNumberOfResources++
 
 				// get labels for each resource
