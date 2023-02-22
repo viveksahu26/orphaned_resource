@@ -11,9 +11,8 @@ import (
 	"time"
 
 	"github.com/viveksahu26/orphaned_resource/pkg/client"
-	"k8s.io/client-go/discovery"
-	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 )
 
 // default values for config
@@ -31,8 +30,7 @@ var (
 	ObmondoHTTPClient        *http.Client
 	CertName                 string
 	Clientset                *kubernetes.Clientset
-	DynamicClient            *dynamic.DynamicClient
-	DiscoveryClient          *discovery.DiscoveryClient
+	KubeConfig               *rest.Config
 )
 
 // LoadConfig populates the config vars from env
@@ -43,8 +41,7 @@ func LoadConfig() {
 	cert := getCertificate()
 	ObmondoHTTPClient = getCustomHTTPSClient(cert)
 	CertName = getCommonNameForCert(cert)
-	Clientset, DynamicClient = client.InitClient().Client()
-	DiscoveryClient = Clientset.DiscoveryClient
+	KubeConfig = client.Init().GetConfig()
 }
 
 // getDuration() loads the duration from env

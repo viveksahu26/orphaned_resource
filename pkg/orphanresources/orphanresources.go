@@ -5,14 +5,16 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"os"
 	"strings"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/viveksahu26/orphaned_resource/pkg/config"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/dynamic"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 )
 
 type ResourceInfo struct {
@@ -39,29 +41,42 @@ var OrphanedResources = prometheus.NewGauge(
 func SendOrphanedResourceMetricsAlertInfo() error {
 	fmt.Println("+++++ Inside SendOrphanedResourceMetricsAlertInfo")
 	defer fmt.Println("------ Exit SendOrphanedResourceMetricsAlertInfo")
-	orphangeResourceLabels := CountOrphanedResources(config.DiscoveryClient, config.DynamicClient)
+	orphangeResourceLabels := CountOrphanedResources(config.KubeConfig)
 	fmt.Println("**************** TOTAL TOTAL orphangeResourceLabels.totalCount: ", orphangeResourceLabels.totalCount)
 	OrphanedResources.Set(float64(orphangeResourceLabels.totalCount))
 	return nil
 }
 
-func CountOrphanedResources(discoveryClient *discovery.DiscoveryClient, dynamicClient *dynamic.DynamicClient) CountOrphanedResource {
+func CountOrphanedResources(kubeconfig *rest.Config) CountOrphanedResource {
 	fmt.Println("+++++ Inside CountOrphanedResources")
 	defer fmt.Println("------ Exit CountOrphanedResources")
 	count := CountOrphanedResource{}
 
 	countArgoCDResource := count
 	countOrphanedResource := count
-	countArgoCDResource, countOrphanedResource = GetOrphanedResource(discoveryClient, dynamicClient, countArgoCDResource, countOrphanedResource)
+	countArgoCDResource, countOrphanedResource = GetOrphanedResource(kubeconfig, countArgoCDResource, countOrphanedResource)
 
 	log.Println("Total ArgoCD Managed Resource: ", countArgoCDResource.totalCount)
 	log.Println("Total Orphaned Resource: ", countOrphanedResource.totalCount)
 	return countOrphanedResource
 }
 
-func GetOrphanedResource(discoveryClient *discovery.DiscoveryClient, dynamicClient *dynamic.DynamicClient, totalArgoManagedResource, totalOrphanedResource CountOrphanedResource) (CountOrphanedResource, CountOrphanedResource) {
+func GetOrphanedResource(config *rest.Config, totalArgoManagedResource, totalOrphanedResource CountOrphanedResource) (CountOrphanedResource, CountOrphanedResource) {
 	fmt.Println("+++++ Inside GetOrphanedResource")
 	defer fmt.Println("------ Exit GetOrphanedResource")
+
+	// creates new kubernetes client
+	clientset, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		log.Printf("error in creating kuberentes client: %v\n", err)
+		os.Exit(1)
+	}
+	dynamicClient, err := dynamic.NewForConfig(config)
+	if err != nil {
+		panic(err)
+	}
+	discoveryClient := clientset.DiscoveryClient
+
 	// fetches all resources from API Server
 	resources, err := discoveryClient.ServerPreferredResources()
 	if err != nil {
