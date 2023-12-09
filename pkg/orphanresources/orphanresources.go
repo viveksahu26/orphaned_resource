@@ -7,6 +7,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/argoproj/argo-cd/v2/pkg/client/clientset/versioned"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/viveksahu26/orphaned_resource/pkg/config"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -70,10 +71,16 @@ func GetOrphanedResource(config *rest.Config, totalArgoManagedResource, totalOrp
 		log.Printf("error in creating kuberentes client: %v\n", err)
 		os.Exit(1)
 	}
+	argocdClientset, err := versioned.NewForConfig(config)
+	if err != nil {
+		log.Fatalf("Failed to create Argo CD clientset: %v", err)
+	}
+	log.Println("argocdClientset: ", argocdClientset)
 	dynamicClient, err := dynamic.NewForConfig(config)
 	if err != nil {
 		panic(err)
 	}
+
 	discoveryClient := clientset.DiscoveryClient
 
 	// fetches all resources from API Server
@@ -135,8 +142,10 @@ func GetOrphanedResource(config *rest.Config, totalArgoManagedResource, totalOrp
 				// get labels for each resource
 				resourceLabels := el.GetLabels()
 
-				labelValue, ok := resourceLabels["app.kubernetes.io/name"]
-				if ok && strings.Contains(labelValue, "argocd") {
+				resLabel1, ok := resourceLabels["app.kubernetes.io/instance"]
+				resLabel2, ok1 := resourceLabels["app.kubernetes.io/part-of"]
+				resLabel3, ok3 := resourceLabels["app.kubernetes.io/name"]
+				if ok && strings.Contains(resLabel1, "argo-cd") || ok1 && strings.Contains(resLabel2, "argocd") || ok3 && strings.Contains(resLabel3, "argocd") {
 					totalArgoManagedResource.totalCount++
 					totalArgoManagedResource.Resources = append(totalArgoManagedResource.Resources, resInfo.Name)
 				} else {

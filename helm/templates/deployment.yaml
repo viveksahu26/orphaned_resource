@@ -46,7 +46,7 @@ spec:
             - name: AGENT_KEY_PATH
               value: {{ .Values.envVars.keyPath | default "tls.key" }}
             - name: PROMETHEUS_URL
-              value: {{ .Values.envVars.prometheusURL | default "http://localhost:9090" }}
+              value: {{ .Values.envVars.prometheusURL | default "http://prometheus-k8s.monitoring:9090" }}
             - name: API_URL
               value: {{ .Values.envVars.apiURL | default "https://api.obmondo.com/" }}
           # {{- with .Values.image.volumeMounts}}
